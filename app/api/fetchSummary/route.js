@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { GET as getChatSummary } from "../summary/route";
+import { getChatSummary } from "../../../lib/groqUtils2";
 
 const Conversation = mongoose.model("Conversation");
 
@@ -12,24 +12,34 @@ export async function GET() {
     const conversation = await Conversation.findOne({ userId });
 
     if (!conversation || !conversation.History) {
-      throw new Error(`No conversation history found for user ${userId}`);
+      return new Response(
+        JSON.stringify({ error: `No conversation history found for user ${userId}` }),
+        { status: 404 }
+      );
     }
 
     const summaries = [];
+    let isUpdated = false; // Track if the database needs to be updated
 
-    // Iterate through each day's history
     for (const entry of conversation.History) {
+      // If a summary is missing, generate it
       if (!entry.summary) {
-        // If summary is missing, generate it using `getChatSummary`
         const date = entry.date.toISOString().slice(0, 10);
         console.log(`Generating summary for date: ${date}`);
-        const { summary, healthPoints } = await getChatSummary(userId, date);
 
-        // Update entry with generated summary
-        entry.summary = summary;
-        entry.score = healthPoints;
+        try {
+          const { summary, healthPoints } = await getChatSummary(userId, date);
+          entry.summary = summary;
+          entry.score = healthPoints;
+          isUpdated = true; // Mark as updated
+        } catch (error) {
+          console.error(`Failed to generate summary for date: ${date}`, error);
+          // Continue processing other entries even if one fails
+          continue;
+        }
       }
 
+      // Push the entry to the summaries array
       summaries.push({
         date: entry.date,
         summary: entry.summary,
@@ -37,17 +47,16 @@ export async function GET() {
       });
     }
 
-    // Save the updated conversation back to the database
-    await conversation.save();
+    // Save updates to the database if any summaries were generated
+    if (isUpdated) {
+      await conversation.save();
+    }
 
-    return new Response(
-      JSON.stringify({ summaries }),
-      { status: 200 }
-    );
+    return new Response(JSON.stringify({ summaries }), { status: 200 });
   } catch (error) {
     console.error("Error in fetching or generating summaries:", error);
     return new Response(
-      JSON.stringify({ error: "Something went wrong." }),
+      JSON.stringify({ error: "Something went wrong while processing summaries." }),
       { status: 500 }
     );
   }
