@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -11,47 +11,66 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-// This would typically come from your database
-const moodHistory = [
-  {
-    date: "2025-01-23",
-    mood: "happy",
-    message: "Had a great therapy session!",
-  },
-  {
-    date: "2025-01-20",
-    mood: "anxious",
-    message: "Feeling overwhelmed with work",
-  },
-  { date: "2025-01-18", mood: "sad", message: "Missing my friends" },
-];
-
-const moodEmoji = {
-  happy: "😊",
-  sad: "😢",
-  anxious: "😰",
-  angry: "😠",
-  neutral: "😐",
+// Mapping score ranges to mood emojis
+const getMoodEmoji = (score) => {
+  if (score >= 80) return "😊"; // Happy
+  if (score >= 60) return "😐"; // Neutral
+  if (score >= 40) return "😰"; // Anxious
+  return "😢"; // Sad
 };
 
 export default function DailyLogPage() {
   const [date, setDate] = useState<any>(new Date());
-  const [selectedMood, setSelectedMood] = useState<any>(null);
+  const [selectedSummary, setSelectedSummary] = useState<any>(null);
+  const [moodHistory, setMoodHistory] = useState<any[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>("");
 
-  const handleSelect = (date: any) => {
-    setDate(date);
-    if (date) {
-      const mood = moodHistory.find(
-        (m) => m.date === format(date, "yyyy-MM-dd")
+  // Fetch summaries from the backend
+  useEffect(() => {
+    const fetchSummaries = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch("/api/fetchSummary");
+        if (!response.ok) {
+          throw new Error("Failed to fetch summaries");
+        }
+        const data = await response.json();
+        setMoodHistory(data.summaries || []);
+      } catch (err) {
+        console.error(err);
+        setError("Unable to load summaries.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSummaries();
+  }, []);
+
+  const handleSelect = (selectedDate: any) => {
+    setDate(selectedDate);
+    if (selectedDate) {
+      const summary = moodHistory.find(
+        (m) => m.date.slice(0, 10) === format(selectedDate, "yyyy-MM-dd")
       );
-      setSelectedMood(mood);
+      setSelectedSummary(summary || null);
     }
   };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="text-red-500">{error}</div>;
+  }
 
   return (
     <div className="container py-6">
       <h1 className="mb-6 text-2xl font-bold">Daily Log</h1>
       <div className="grid gap-6 md:grid-cols-2">
+        {/* Calendar Card */}
         <Card>
           <CardHeader>
             <CardTitle>Mood Calendar</CardTitle>
@@ -65,21 +84,25 @@ export default function DailyLogPage() {
               selected={date}
               onSelect={handleSelect}
               modifiers={{
-                booked: (date) =>
+                logged: (date) =>
                   moodHistory.some(
-                    (m) => m.date === format(date, "yyyy-MM-dd")
+                    (m) => m.date.slice(0, 10) === format(date, "yyyy-MM-dd")
                   ),
               }}
               modifiersStyles={{
-                booked: {
+                logged: {
                   fontWeight: "bold",
                   textDecoration: "underline",
+                  backgroundColor: "#d1fae5", // Light green for logged days
+                  color: "#065f46", // Dark green text
                 },
               }}
               className="rounded-md border"
             />
           </CardContent>
         </Card>
+
+        {/* Mood Details Card */}
         <Card>
           <CardHeader>
             <CardTitle>Mood Details</CardTitle>
@@ -88,18 +111,21 @@ export default function DailyLogPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {selectedMood ? (
+            {selectedSummary ? (
               <div className="space-y-4">
                 <div className="text-4xl">
-                  {moodEmoji[selectedMood.mood as keyof typeof moodEmoji]}
+                  {getMoodEmoji(selectedSummary.score)}
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  {selectedMood.message}
+                <p className="text-sm">
+                  <strong>Summary:</strong> {selectedSummary.summary}
+                </p>
+                <p className="text-sm">
+                  <strong>Health Score:</strong> {selectedSummary.score}
                 </p>
               </div>
             ) : (
               <p className="text-sm text-muted-foreground">
-                No mood recorded for this date
+                No mood summary recorded for this date.
               </p>
             )}
           </CardContent>
