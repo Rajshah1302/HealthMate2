@@ -1,23 +1,12 @@
 import Groq from "groq-sdk";
 
-// Initialize the Groq client with the API key
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-/**
- * Main API route handler for chat completions
- */
 export async function POST(req) {
   try {
-    // Parse the incoming request JSON
     const { userInput, chatHistory } = await req.json();
-
-    // Get the chat completion from Groq
     const chatCompletion = await getGroqChatCompletion(userInput, chatHistory);
-
-    // Extract the assistant's response
     const assistantResponse = chatCompletion.choices[0]?.message?.content || "";
-
-    // Return the response
     return new Response(
       JSON.stringify({ assistantResponse }),
       { status: 200 }
@@ -40,6 +29,10 @@ export async function getGroqChatCompletion(userInput, chatHistory) {
   return groq.chat.completions.create({
     messages: [
       ...chatHistory,
+      {
+        role: "system",
+        content: `You are a compassionate virtual therapist. Your goal is to provide empathetic, thoughtful, and supportive responses to help users feel heard and guide them through their concerns. Keep your tone calm and understanding. Give short messages about 2 lines`,
+      },
       {
         role: "user",
         content: userInput,
