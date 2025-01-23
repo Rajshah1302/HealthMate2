@@ -1,7 +1,5 @@
-import mongoose from "mongoose";
 import { getChatSummary } from "../../../lib/groqUtils2";
-
-const Conversation = mongoose.model("Conversation");
+import Conversation from "../__models/conversation";
 
 /**
  * API route to fetch or generate summaries for all days in the user's history
