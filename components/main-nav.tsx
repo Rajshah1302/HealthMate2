@@ -35,10 +35,10 @@ export function MainNav() {
           {navigation.map((item) => (
             <SidebarMenuItem key={item.name}>
               <SidebarMenuButton asChild isActive={pathname === item.href}>
-                <Link href={item.href} className="flex items-center gap-2">
+                <div className="flex items-center gap-2">
                   <item.icon className="size-4" />
-                  <span>{item.name}</span>
-                </Link>
+                  <Link href={item.href}>{item.name}</Link>
+                </div>
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
