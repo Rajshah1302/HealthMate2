@@ -20,11 +20,11 @@ const getMoodEmoji = (score) => {
 };
 
 export default function DailyLogPage() {
-  const [date, setDate] = useState<any>(new Date());
-  const [selectedSummary, setSelectedSummary] = useState<any>(null);
-  const [moodHistory, setMoodHistory] = useState<any[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string>("");
+  const [date, setDate] = useState(new Date());
+  const [selectedSummary, setSelectedSummary] = useState(null);
+  const [moodHistory, setMoodHistory] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   // Fetch summaries from the backend
   useEffect(() => {
@@ -48,7 +48,7 @@ export default function DailyLogPage() {
     fetchSummaries();
   }, []);
 
-  const handleSelect = (selectedDate: any) => {
+  const handleSelect = (selectedDate) => {
     setDate(selectedDate);
     if (selectedDate) {
       const summary = moodHistory.find(
