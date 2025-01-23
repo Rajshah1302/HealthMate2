@@ -14,16 +14,16 @@ import {
 // This would typically come from your database
 const moodHistory = [
   {
-    date: "2024-01-23",
+    date: "2025-01-23",
     mood: "happy",
     message: "Had a great therapy session!",
   },
   {
-    date: "2024-01-20",
+    date: "2025-01-20",
     mood: "anxious",
     message: "Feeling overwhelmed with work",
   },
-  { date: "2024-01-18", mood: "sad", message: "Missing my friends" },
+  { date: "2025-01-18", mood: "sad", message: "Missing my friends" },
 ];
 
 const moodEmoji = {
@@ -35,11 +35,10 @@ const moodEmoji = {
 };
 
 export default function DailyLogPage() {
-  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [date, setDate] = useState<any>(new Date());
   const [selectedMood, setSelectedMood] = useState<any>(null);
 
-  // Find mood for selected date
-  const handleSelect = (date: Date | undefined) => {
+  const handleSelect = (date: any) => {
     setDate(date);
     if (date) {
       const mood = moodHistory.find(
