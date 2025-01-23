@@ -9,7 +9,7 @@ import { ResourceSection } from "@/components/resource-section";
 import { EmergencyButton } from "@/components/emergency-button";
 
 export default function ChatPage() {
-  const [messages, setMessages] = useState<{ role: "user" | "bot"; content: string }[]>([]);
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -50,11 +50,11 @@ export default function ChatPage() {
     }
   };
   
-  function handlePromptClick(prompt: string): void {
+  function handlePromptClick(prompt) {
     setInput(prompt);
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       handleSendMessage();
     }
