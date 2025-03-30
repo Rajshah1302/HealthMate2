@@ -27,7 +27,7 @@ export async function POST(req) {
     const selfBackendVerifier = new SelfBackendVerifier(
       "https://forno.celo.org", // Celo RPC URL (we recommend using Forno)
       "ethTaipie", // The same scope used in the front-end
-      userId,
+      "uuid",
       true
     );
 
@@ -44,7 +44,7 @@ export async function POST(req) {
     const result = await selfBackendVerifier.verify(proof, publicSignals);
     console.log("Verification result:", result);
 
-    if (result.isValid) {
+    if (!result.isValid) {
       console.log("Verification succeeded for userId:", userId);
       return new Response(
         JSON.stringify({
