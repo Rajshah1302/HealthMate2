@@ -27,7 +27,7 @@ export async function POST(req) {
     const selfBackendVerifier = new SelfBackendVerifier(
       "https://forno.celo.org", // Celo RPC URL (we recommend using Forno)
       "ethTaipie", // The same scope used in the front-end
-      uuid,
+      "ed5667f4-5d26-4b8b-9dd9-79050b3fbb7c",
       true
     );
 
