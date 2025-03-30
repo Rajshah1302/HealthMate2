@@ -2,9 +2,13 @@ import { getUserIdentifier, SelfBackendVerifier, countryCodes } from '@selfxyz/c
 
 export async function POST(req) {
   try {
-    const { proof, publicSignals } = await req.json();
-
+    // Parse the JSON body and log it
+    const body = await req.json();
+    console.log("Received request body:", body);
+    
+    const { proof, publicSignals } = body;
     if (!proof || !publicSignals) {
+      console.error("Missing proof or publicSignals. Received:", body);
       return new Response(
         JSON.stringify({ message: 'Proof and publicSignals are required' }),
         { status: 400 }
@@ -15,7 +19,7 @@ export async function POST(req) {
     const userId = await getUserIdentifier(publicSignals);
     console.log("Extracted userId:", userId);
 
-    // Initialize and configure the verifier using environment-specific values
+    // Initialize and configure the verifier
     const selfBackendVerifier = new SelfBackendVerifier(
       'https://forno.celo.org', // Celo RPC URL (we recommend using Forno)
       'ethTaipie',              // The same scope used in the front-end
@@ -29,12 +33,15 @@ export async function POST(req) {
       countryCodes.IRN, // Exclude Iran
       countryCodes.PRK  // Exclude North Korea
     );
+    // Optionally, enable additional checks
     // selfBackendVerifier.enableNameAndDobOfacCheck();
 
-    // Verify the proof
+    // Verify the proof and log the result
     const result = await selfBackendVerifier.verify(proof, publicSignals);
+    console.log("Verification result:", result);
 
     if (result.isValid) {
+      console.log("Verification succeeded for userId:", userId);
       return new Response(
         JSON.stringify({
           status: 'success',
@@ -44,6 +51,7 @@ export async function POST(req) {
         { status: 200 }
       );
     } else {
+      console.error("Verification failed with details:", result.isValidDetails);
       return new Response(
         JSON.stringify({
           status: 'error',
