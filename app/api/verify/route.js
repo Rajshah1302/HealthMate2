@@ -1,16 +1,20 @@
-import { getUserIdentifier, SelfBackendVerifier, countryCodes } from '@selfxyz/core';
+import {
+  getUserIdentifier,
+  SelfBackendVerifier,
+  countryCodes,
+} from "@selfxyz/core";
 
 export async function POST(req) {
   try {
     // Parse the JSON body and log it
     const body = await req.json();
     console.log("Received request body:", body);
-    
+
     const { proof, publicSignals } = body;
     if (!proof || !publicSignals) {
       console.error("Missing proof or publicSignals. Received:", body);
       return new Response(
-        JSON.stringify({ message: 'Proof and publicSignals are required' }),
+        JSON.stringify({ message: "Proof and publicSignals are required" }),
         { status: 400 }
       );
     }
@@ -21,9 +25,9 @@ export async function POST(req) {
 
     // Initialize and configure the verifier
     const selfBackendVerifier = new SelfBackendVerifier(
-      'https://forno.celo.org', // Celo RPC URL (we recommend using Forno)
-      'ethTaipie',              // The same scope used in the front-end
-      'uuid',
+      "https://forno.celo.org", // Celo RPC URL (we recommend using Forno)
+      "ethTaipie", // The same scope used in the front-end
+      uuid,
       true
     );
 
@@ -31,7 +35,7 @@ export async function POST(req) {
     selfBackendVerifier.setMinimumAge(18);
     selfBackendVerifier.excludeCountries(
       countryCodes.IRN, // Exclude Iran
-      countryCodes.PRK  // Exclude North Korea
+      countryCodes.PRK // Exclude North Korea
     );
     // Optionally, enable additional checks
     // selfBackendVerifier.enableNameAndDobOfacCheck();
@@ -44,7 +48,7 @@ export async function POST(req) {
       console.log("Verification succeeded for userId:", userId);
       return new Response(
         JSON.stringify({
-          status: 'success',
+          status: "success",
           result: true,
           credentialSubject: result.credentialSubject,
         }),
@@ -54,21 +58,21 @@ export async function POST(req) {
       console.error("Verification failed with details:", result.isValidDetails);
       return new Response(
         JSON.stringify({
-          status: 'error',
+          status: "error",
           result: false,
-          message: 'Verification failed',
+          message: "Verification failed",
           details: result.isValidDetails,
         }),
         { status: 400 }
       );
     }
   } catch (error) {
-    console.error('Error verifying proof:', error);
+    console.error("Error verifying proof:", error);
     return new Response(
       JSON.stringify({
-        status: 'error',
+        status: "error",
         result: false,
-        message: error instanceof Error ? error.message : 'Unknown error',
+        message: error instanceof Error ? error.message : "Unknown error",
       }),
       { status: 500 }
     );
