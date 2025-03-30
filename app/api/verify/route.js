@@ -1,4 +1,4 @@
-import { getUserIdentifier, SelfBackendVerifier, countryCodes } from '@selfxyz/core';
+import { getUserIdentifier, SelfBackendVerifier } from '@selfxyz/core';
 
 export async function POST(req) {
   try {
