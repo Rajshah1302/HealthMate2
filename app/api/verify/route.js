@@ -29,7 +29,7 @@ export async function POST(req) {
       countryCodes.IRN, // Exclude Iran
       countryCodes.PRK  // Exclude North Korea
     );
-    selfBackendVerifier.enableNameAndDobOfacCheck();
+    // selfBackendVerifier.enableNameAndDobOfacCheck();
 
     // Verify the proof
     const result = await selfBackendVerifier.verify(proof, publicSignals);
