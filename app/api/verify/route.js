@@ -1,8 +1,8 @@
 import { getUserIdentifier, SelfBackendVerifier, countryCodes } from '@selfxyz/core';
 
-export async function POST(request) {
+export async function POST(req) {
   try {
-    const { proof, publicSignals } = await request.json();
+    const { proof, publicSignals } = await req.json();
 
     if (!proof || !publicSignals) {
       return new Response(
@@ -26,8 +26,8 @@ export async function POST(request) {
     // Configure verification options
     selfBackendVerifier.setMinimumAge(18);
     selfBackendVerifier.excludeCountries(
-      countryCodes.IRN,  // Exclude Iran
-      countryCodes.PRK   // Exclude North Korea
+      countryCodes.IRN, // Exclude Iran
+      countryCodes.PRK  // Exclude North Korea
     );
     selfBackendVerifier.enableNameAndDobOfacCheck();
 
@@ -39,7 +39,7 @@ export async function POST(request) {
         JSON.stringify({
           status: 'success',
           result: true,
-          credentialSubject: result.credentialSubject
+          credentialSubject: result.credentialSubject,
         }),
         { status: 200 }
       );
@@ -49,7 +49,7 @@ export async function POST(request) {
           status: 'error',
           result: false,
           message: 'Verification failed',
-          details: result.isValidDetails
+          details: result.isValidDetails,
         }),
         { status: 400 }
       );
@@ -60,7 +60,7 @@ export async function POST(request) {
       JSON.stringify({
         status: 'error',
         result: false,
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: error instanceof Error ? error.message : 'Unknown error',
       }),
       { status: 500 }
     );
