@@ -29,10 +29,10 @@ export async function POST(req) {
 
     // Configure verification options
     selfBackendVerifier.setMinimumAge(18);
-    selfBackendVerifier.excludeCountries(
-      countryCodes.IRN, // Exclude Iran
-      countryCodes.PRK  // Exclude North Korea
-    );
+    // selfBackendVerifier.excludeCountries(
+    //   countryCodes.IRN, // Exclude Iran
+    //   countryCodes.PRK  // Exclude North Korea
+    // );
     // Optionally, enable additional checks
     // selfBackendVerifier.enableNameAndDobOfacCheck();
 
